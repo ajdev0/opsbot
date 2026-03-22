@@ -1,0 +1,19 @@
+[Unit]
+Description=OpsBot — self-hosted monitoring and Telegram ops daemon
+Documentation=https://github.com/ajdev0/opsbot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Use full path from `which opsbot` after `npm install -g opsbot`
+ExecStart=/usr/bin/opsbot daemon run
+Restart=always
+RestartSec=5
+# Dedicated user recommended (create first: useradd -r -s /bin/false opsbot)
+# User=opsbot
+# Group=opsbot
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target

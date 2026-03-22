@@ -1,0 +1,51 @@
+{
+  "name": "opsbot",
+  "version": "0.1.0",
+  "description": "Lightweight self-hosted Linux CLI + daemon for monitoring, Telegram alerts, and runtime control",
+  "type": "module",
+  "bin": {
+    "opsbot": "./bin/opsbot.js"
+  },
+  "main": "src/cli/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ajdev0/opsbot.git"
+  },
+  "homepage": "https://github.com/ajdev0/opsbot#readme",
+  "bugs": {
+    "url": "https://github.com/ajdev0/opsbot/issues"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node bin/opsbot.js",
+    "verify": "node bin/opsbot.js --version && node bin/opsbot.js --help"
+  },
+  "keywords": [
+    "ops",
+    "monitoring",
+    "telegram",
+    "pm2",
+    "docker",
+    "systemd",
+    "cli"
+  ],
+  "license": "MIT",
+  "files": [
+    "bin",
+    "src",
+    "templates",
+    "README.md",
+    "LICENSE",
+    "CONTRIBUTING.md"
+  ],
+  "dependencies": {
+    "axios": "^1.7.9",
+    "chalk": "^5.4.1",
+    "commander": "^12.1.0",
+    "inquirer": "^9.3.7",
+    "js-yaml": "^4.1.0",
+    "node-telegram-bot-api": "^0.66.0"
+  }
+}
