@@ -1,5 +1,5 @@
 {
-  "name": "opsbot",
+  "name": "opsbot-monitor",
   "version": "0.1.0",
   "description": "Lightweight self-hosted Linux CLI + daemon for monitoring, Telegram alerts, and runtime control",
   "type": "module",
@@ -9,7 +9,7 @@
   "main": "src/cli/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ajdev0/opsbot.git"
+    "url": "git+https://github.com/ajdev0/opsbot.git"
   },
   "homepage": "https://github.com/ajdev0/opsbot#readme",
   "bugs": {
@@ -20,7 +20,8 @@
   },
   "scripts": {
     "start": "node bin/opsbot.js",
-    "verify": "node bin/opsbot.js --version && node bin/opsbot.js --help"
+    "verify": "node bin/opsbot.js --version && node bin/opsbot.js --help",
+    "prepublishOnly": "npm run verify"
   },
   "keywords": [
     "ops",
@@ -31,6 +32,7 @@
     "systemd",
     "cli"
   ],
+  "author": "ajdev0",
   "license": "MIT",
   "files": [
     "bin",
