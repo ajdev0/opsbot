@@ -1,0 +1,37 @@
+# Filename must match npm Trusted Publisher settings (e.g. publish.yml).
+# Optional: set job-level `environment: <name>` if you configured an environment on npmjs.com.
+
+name: Publish to npm
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Trusted publishing requires npm 11.5.1+ and Node 22.14.0+ (see https://docs.npmjs.com/trusted-publishers)
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Ensure tag matches package.json version
+        run: |
+          TAG_VER="${GITHUB_REF_NAME#v}"
+          PKG_VER=$(node -e "console.log(JSON.parse(require('fs').readFileSync('package.json','utf8')).version)")
+          if [ "$TAG_VER" != "$PKG_VER" ]; then
+            echo "Git tag v$TAG_VER does not match package.json version $PKG_VER"
+            exit 1
+          fi
+
+      - run: npm ci
+      - run: npm publish --access public

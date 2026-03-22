@@ -1,6 +1,6 @@
-# OpsBot
+# OpsBot Monitor
 
-[![npm](https://img.shields.io/npm/v/opsbot.svg)](https://www.npmjs.com/package/opsbot)
+[![npm](https://img.shields.io/npm/v/opsbot-monitor.svg)](https://www.npmjs.com/package/opsbot-monitor)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Lightweight **self-hosted** Linux CLI + daemon for:
@@ -25,16 +25,17 @@ Lightweight **self-hosted** Linux CLI + daemon for:
 ## Install
 
 ```bash
-npm install -g opsbot
+npm install -g opsbot-monitor
 ```
 
-The npm package name is `opsbot`. If that name is unavailable on the registry you control, publish under a [scoped name](https://docs.npmjs.com/cli/v10/using-npm/scope) (for example `@your-org/opsbot`) and install with `npm install -g @your-org/opsbot` — the CLI command remains `opsbot` as long as the package exposes that `bin`.
+The npm package name is `opsbot-monitor`. The same install provides two CLI commands, `opsbot` and `opsbot-monitor` (equivalent). Help output uses the name `opsbot`. If you publish a fork under a [scoped name](https://docs.npmjs.com/cli/v10/using-npm/scope) (for example `@your-org/opsbot-monitor`), install with `npm install -g @your-org/opsbot-monitor` instead.
 
-After a global install, confirm the binary is on your `PATH`:
+After a global install, confirm a binary is on your `PATH`:
 
 ```bash
 which opsbot
 opsbot --version
+# or: which opsbot-monitor && opsbot-monitor --version
 ```
 
 Or clone and link:
@@ -137,9 +138,9 @@ Alerts:
 
 ## systemd
 
-1. Install globally so `opsbot` is on `PATH` (or set full path in the unit).
+1. Install globally so `opsbot` or `opsbot-monitor` is on `PATH` (or set full path in the unit).
 2. Copy [templates/opsbot.service](templates/opsbot.service) to `/etc/systemd/system/opsbot.service`.
-3. Adjust `ExecStart` to the output of `which opsbot` (often under `/usr/bin` or nvm).
+3. Adjust `ExecStart` to the output of `which opsbot` or `which opsbot-monitor` (often under `/usr/bin` or nvm).
 4. Uncomment/set `User=` / `Group=` for a non-root service account.
 5. Enable:
 
@@ -175,7 +176,7 @@ npm ci
 npm run verify
 ```
 
-`verify` runs `opsbot --version` and `opsbot --help` via `node bin/opsbot.js` (no Telegram or daemon required).
+`verify` runs `opsbot --version` and `opsbot --help` via `node bin/opsbot.js` (same entry as `opsbot-monitor`; no Telegram or daemon required).
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for pull requests and security reporting. Releases: [RELEASING.md](RELEASING.md).
 

@@ -6,7 +6,7 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-# Use full path from `which opsbot` after `npm install -g opsbot`
+# Use full path from `which opsbot` or `which opsbot-monitor` after `npm install -g opsbot-monitor`
 ExecStart=/usr/bin/opsbot daemon run
 Restart=always
 RestartSec=5
