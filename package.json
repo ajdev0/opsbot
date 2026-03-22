@@ -4,8 +4,8 @@
   "description": "Lightweight self-hosted Linux CLI + daemon for monitoring, Telegram alerts, and runtime control",
   "type": "module",
   "bin": {
-    "opsbot": "./bin/opsbot.js",
-    "opsbot-monitor": "./bin/opsbot.js"
+    "opsbot": "bin/opsbot.js",
+    "opsbot-monitor": "bin/opsbot.js"
   },
   "main": "src/cli/index.js",
   "repository": {
