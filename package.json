@@ -1,6 +1,6 @@
 {
   "name": "opsbot-monitor",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Lightweight self-hosted Linux CLI + daemon for monitoring, Telegram alerts, and runtime control",
   "type": "module",
   "bin": {
