@@ -4,6 +4,7 @@ import { daemonLogPath, pidPath } from '../config/paths.js';
 import { createLogger } from '../utils/logger.js';
 import { Scheduler } from '../scheduler/index.js';
 import { MonitorStateCache, runSingleMonitorCheck } from '../monitor/index.js';
+import { LogWatchStateCache, getLogWatchSettings, runServiceLogWatchTick } from '../logs/watcher.js';
 import { startTelegramBot, stopTelegramBot } from '../telegram/index.js';
 import { resolveEnabledPlugins } from '../plugins/loader.js';
 
@@ -22,6 +23,7 @@ export async function startDaemon() {
   let bot;
   const scheduler = new Scheduler({ logger });
   const cache = new MonitorStateCache();
+  const logWatchCache = new LogWatchStateCache();
 
   try {
     const cfg = loadConfig();
@@ -52,6 +54,29 @@ export async function startDaemon() {
       );
       setImmediate(() =>
         runSingleMonitorCheck(m, cache, alert).catch((e) => logger.error(`monitor ${name} initial`, e)),
+      );
+    }
+
+    const logWatch = getLogWatchSettings(cfg);
+    if (!logWatch.enabled) {
+      logger.info('Log watch disabled');
+    } else if (logWatch.includeServices.length === 0) {
+      logger.warn('Log watch enabled but no include_services configured; skipping schedule');
+    } else {
+      const runLogWatch = async () => {
+        await runServiceLogWatchTick({
+          cfg: loadConfig(),
+          cache: logWatchCache,
+          alert,
+          logger,
+        });
+      };
+      scheduler.schedule('logwatch', logWatch.intervalSec * 1000, () =>
+        runLogWatch().catch((e) => logger.error('logwatch tick', e)),
+      );
+      setImmediate(() => runLogWatch().catch((e) => logger.error('logwatch initial', e)));
+      logger.info(
+        `Log watch enabled (${logWatch.includeServices.length} service(s), every ${logWatch.intervalSec}s, ${logWatch.lines} lines)`,
       );
     }
 

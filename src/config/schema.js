@@ -96,6 +96,65 @@ export function validateConfig(cfg) {
     }
   }
 
+  if (cfg.log_watch !== undefined) {
+    const lw = cfg.log_watch;
+    if (!lw || typeof lw !== 'object' || Array.isArray(lw)) {
+      errors.push('log_watch must be an object');
+    } else {
+      if (lw.enabled !== undefined && typeof lw.enabled !== 'boolean') {
+        errors.push('log_watch.enabled must be a boolean');
+      }
+      if (lw.interval !== undefined) {
+        const n = Number(lw.interval);
+        if (!Number.isFinite(n) || n < 300) {
+          errors.push('log_watch.interval must be a number >= 300');
+        }
+      }
+      if (lw.lines !== undefined) {
+        const n = Number(lw.lines);
+        if (!Number.isFinite(n) || n < 1 || n > 500) {
+          errors.push('log_watch.lines must be a number between 1 and 500');
+        }
+      }
+      if (lw.cooldown_seconds !== undefined) {
+        const n = Number(lw.cooldown_seconds);
+        if (!Number.isFinite(n) || n < 60) {
+          errors.push('log_watch.cooldown_seconds must be a number >= 60');
+        }
+      }
+      if (lw.patterns !== undefined) {
+        if (!Array.isArray(lw.patterns) || lw.patterns.length === 0) {
+          errors.push('log_watch.patterns must be a non-empty array of regex strings');
+        } else {
+          lw.patterns.forEach((p, i) => {
+            if (typeof p !== 'string' || !p.trim()) {
+              errors.push(`log_watch.patterns[${i}] must be a non-empty string`);
+              return;
+            }
+            try {
+              // Validate regex string early so runtime job cannot fail at startup.
+              // eslint-disable-next-line no-new
+              new RegExp(p, 'i');
+            } catch (e) {
+              errors.push(`log_watch.patterns[${i}] invalid regex: ${e.message}`);
+            }
+          });
+        }
+      }
+      if (!Array.isArray(lw.include_services)) {
+        errors.push('log_watch.include_services must be an array of service keys');
+      } else {
+        lw.include_services.forEach((s, i) => {
+          if (typeof s !== 'string' || !s.trim()) {
+            errors.push(`log_watch.include_services[${i}] must be a non-empty string`);
+          } else if (!/^[a-zA-Z0-9_-]+$/.test(s)) {
+            errors.push(`log_watch.include_services[${i}] has invalid characters`);
+          }
+        });
+      }
+    }
+  }
+
   if (cfg.services !== undefined) {
     if (typeof cfg.services !== 'object' || Array.isArray(cfg.services)) {
       errors.push('services must be a map of name -> service config');

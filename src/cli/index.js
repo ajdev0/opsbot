@@ -6,6 +6,7 @@ import chalk from 'chalk';
 import { registerInitCommand } from './commands/init.js';
 import { registerDaemonCommands } from './commands/daemon.js';
 import { registerMonitorCommand } from './commands/monitor.js';
+import { registerLogWatchCommand } from './commands/logwatch.js';
 import { registerServiceCommand } from './commands/service.js';
 import { registerDoctorCommand } from './commands/doctor.js';
 import { loadConfig } from '../config/index.js';
@@ -24,6 +25,7 @@ program
 registerInitCommand(program);
 registerDaemonCommands(program);
 registerMonitorCommand(program);
+registerLogWatchCommand(program);
 registerServiceCommand(program);
 registerDoctorCommand(program);
 

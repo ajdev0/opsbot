@@ -11,6 +11,14 @@ export function defaultConfig() {
       allowed_chat_ids: [],
     },
     monitors: [],
+    log_watch: {
+      enabled: false,
+      interval: 3600,
+      lines: 100,
+      patterns: ['\\b500\\b', 'status=500', 'HTTP\\s+500', '" 500 '],
+      cooldown_seconds: 3600,
+      include_services: [],
+    },
     services: {},
     plugins: [],
   };
@@ -40,6 +48,7 @@ export function loadConfig(opts = {}) {
   }
   const merged = { ...defaultConfig(), ...data };
   if (data.telegram) merged.telegram = { ...defaultConfig().telegram, ...data.telegram };
+  if (data.log_watch) merged.log_watch = { ...defaultConfig().log_watch, ...data.log_watch };
   if (data.services) merged.services = { ...data.services };
   if (data.monitors) merged.monitors = [...data.monitors];
   if (data.plugins) merged.plugins = [...data.plugins];

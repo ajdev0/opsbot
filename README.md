@@ -73,6 +73,20 @@ monitors:
     timeout: 10
     expected_status: 200
 
+log_watch:
+  enabled: true
+  interval: 3600
+  lines: 100
+  patterns:
+    - "\\b500\\b"
+    - "status=500"
+    - "HTTP\\s+500"
+    - "\" 500 "
+  cooldown_seconds: 3600
+  include_services:
+    - api
+    - web
+
 services:
   api:
     type: pm2
@@ -111,10 +125,12 @@ services:
 | `opsbot daemon run` | **Foreground** — use with systemd |
 | `opsbot daemon status` | Pid file / process check |
 | `opsbot monitor add` | Add HTTP monitor |
+| `opsbot logwatch set` | Configure service log-watch alerts |
 | `opsbot service add` | Add runtime service |
 
 ```bash
 opsbot monitor add --name api --url https://example.com --interval 60 --timeout 10
+opsbot logwatch set --enable --interval 3600 --lines 100 --cooldown 3600 --service api --service web --pattern "\\b500\\b" --pattern "status=500" --pattern "\"statusCode\":500"
 opsbot service add --name api --type pm2 --path /srv/api --pm2-name api
 opsbot service add --name web --type docker --path /srv/web --container web
 opsbot service add --name stack --type docker-compose --path /srv/stack --compose-file docker-compose.yml --compose-service app
@@ -135,6 +151,14 @@ Only whitelisted `allowed_chat_ids` may use:
 Alerts:
 
 - `⚠️ <name> DOWN` / `✅ <name> RECOVERED` (no spam while staying down)
+- `⚠️ LOG WATCH <service>` when selected service logs match configured 500-patterns
+
+Log watch notes:
+
+- Pattern-based polling scan (not live streaming tail).
+- Runs on daemon schedule (`log_watch.interval`), default 1 hour when enabled.
+- Dedupe + cooldown suppress repeated alerts for already-seen lines.
+- Scans only `log_watch.include_services` entries (empty list means no scan).
 
 ## systemd
 
