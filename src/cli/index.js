@@ -7,6 +7,7 @@ import { registerInitCommand } from './commands/init.js';
 import { registerDaemonCommands } from './commands/daemon.js';
 import { registerMonitorCommand } from './commands/monitor.js';
 import { registerLogWatchCommand } from './commands/logwatch.js';
+import { registerResourceWatchCommand } from './commands/resourcewatch.js';
 import { registerServiceCommand } from './commands/service.js';
 import { registerDoctorCommand } from './commands/doctor.js';
 import { loadConfig } from '../config/index.js';
@@ -26,6 +27,7 @@ registerInitCommand(program);
 registerDaemonCommands(program);
 registerMonitorCommand(program);
 registerLogWatchCommand(program);
+registerResourceWatchCommand(program);
 registerServiceCommand(program);
 registerDoctorCommand(program);
 

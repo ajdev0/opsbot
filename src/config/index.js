@@ -19,6 +19,18 @@ export function defaultConfig() {
       cooldown_seconds: 3600,
       include_services: [],
     },
+    resource_watch: {
+      enabled: false,
+      interval: 60,
+      cpu_mode: 'delta',
+      cpu_threshold: 85,
+      ram_threshold: 90,
+      recover_cpu_below: 75,
+      recover_ram_below: 80,
+      cooldown_seconds: 600,
+      consecutive_breach_ticks: 2,
+      consecutive_recover_ticks: 2,
+    },
     services: {},
     plugins: [],
   };
@@ -49,6 +61,7 @@ export function loadConfig(opts = {}) {
   const merged = { ...defaultConfig(), ...data };
   if (data.telegram) merged.telegram = { ...defaultConfig().telegram, ...data.telegram };
   if (data.log_watch) merged.log_watch = { ...defaultConfig().log_watch, ...data.log_watch };
+  if (data.resource_watch) merged.resource_watch = { ...defaultConfig().resource_watch, ...data.resource_watch };
   if (data.services) merged.services = { ...data.services };
   if (data.monitors) merged.monitors = [...data.monitors];
   if (data.plugins) merged.plugins = [...data.plugins];

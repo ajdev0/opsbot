@@ -155,6 +155,83 @@ export function validateConfig(cfg) {
     }
   }
 
+  if (cfg.resource_watch !== undefined) {
+    const rw = cfg.resource_watch;
+    if (!rw || typeof rw !== 'object' || Array.isArray(rw)) {
+      errors.push('resource_watch must be an object');
+    } else {
+      if (rw.enabled !== undefined && typeof rw.enabled !== 'boolean') {
+        errors.push('resource_watch.enabled must be a boolean');
+      }
+      if (rw.interval !== undefined) {
+        const n = Number(rw.interval);
+        if (!Number.isFinite(n) || n < 10) {
+          errors.push('resource_watch.interval must be a number >= 10');
+        }
+      }
+      if (rw.cpu_mode !== undefined && rw.cpu_mode !== 'delta' && rw.cpu_mode !== 'loadavg') {
+        errors.push('resource_watch.cpu_mode must be one of: delta, loadavg');
+      }
+      if (rw.cpu_threshold !== undefined) {
+        const n = Number(rw.cpu_threshold);
+        if (!Number.isFinite(n) || n < 1 || n > 100) {
+          errors.push('resource_watch.cpu_threshold must be a number between 1 and 100');
+        }
+      }
+      if (rw.ram_threshold !== undefined) {
+        const n = Number(rw.ram_threshold);
+        if (!Number.isFinite(n) || n < 1 || n > 100) {
+          errors.push('resource_watch.ram_threshold must be a number between 1 and 100');
+        }
+      }
+      if (rw.recover_cpu_below !== undefined) {
+        const n = Number(rw.recover_cpu_below);
+        if (!Number.isFinite(n) || n < 0 || n > 100) {
+          errors.push('resource_watch.recover_cpu_below must be a number between 0 and 100');
+        }
+      }
+      if (rw.recover_ram_below !== undefined) {
+        const n = Number(rw.recover_ram_below);
+        if (!Number.isFinite(n) || n < 0 || n > 100) {
+          errors.push('resource_watch.recover_ram_below must be a number between 0 and 100');
+        }
+      }
+      if (rw.cooldown_seconds !== undefined) {
+        const n = Number(rw.cooldown_seconds);
+        if (!Number.isFinite(n) || n < 0) {
+          errors.push('resource_watch.cooldown_seconds must be a number >= 0');
+        }
+      }
+      if (rw.consecutive_breach_ticks !== undefined) {
+        const n = Number(rw.consecutive_breach_ticks);
+        if (!Number.isInteger(n) || n < 1) {
+          errors.push('resource_watch.consecutive_breach_ticks must be an integer >= 1');
+        }
+      }
+      if (rw.consecutive_recover_ticks !== undefined) {
+        const n = Number(rw.consecutive_recover_ticks);
+        if (!Number.isInteger(n) || n < 1) {
+          errors.push('resource_watch.consecutive_recover_ticks must be an integer >= 1');
+        }
+      }
+
+      if (rw.cpu_threshold !== undefined && rw.recover_cpu_below !== undefined) {
+        const th = Number(rw.cpu_threshold);
+        const rec = Number(rw.recover_cpu_below);
+        if (Number.isFinite(th) && Number.isFinite(rec) && rec >= th) {
+          errors.push('resource_watch.recover_cpu_below must be lower than resource_watch.cpu_threshold');
+        }
+      }
+      if (rw.ram_threshold !== undefined && rw.recover_ram_below !== undefined) {
+        const th = Number(rw.ram_threshold);
+        const rec = Number(rw.recover_ram_below);
+        if (Number.isFinite(th) && Number.isFinite(rec) && rec >= th) {
+          errors.push('resource_watch.recover_ram_below must be lower than resource_watch.ram_threshold');
+        }
+      }
+    }
+  }
+
   if (cfg.services !== undefined) {
     if (typeof cfg.services !== 'object' || Array.isArray(cfg.services)) {
       errors.push('services must be a map of name -> service config');

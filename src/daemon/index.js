@@ -5,6 +5,7 @@ import { createLogger } from '../utils/logger.js';
 import { Scheduler } from '../scheduler/index.js';
 import { MonitorStateCache, runSingleMonitorCheck } from '../monitor/index.js';
 import { LogWatchStateCache, getLogWatchSettings, runServiceLogWatchTick } from '../logs/watcher.js';
+import { ResourceWatchStateCache, getResourceWatchSettings, runResourceWatchTick } from '../monitor/resource-watch.js';
 import { startTelegramBot, stopTelegramBot } from '../telegram/index.js';
 import { resolveEnabledPlugins } from '../plugins/loader.js';
 
@@ -24,6 +25,7 @@ export async function startDaemon() {
   const scheduler = new Scheduler({ logger });
   const cache = new MonitorStateCache();
   const logWatchCache = new LogWatchStateCache();
+  const resourceWatchCache = new ResourceWatchStateCache();
 
   try {
     const cfg = loadConfig();
@@ -77,6 +79,27 @@ export async function startDaemon() {
       setImmediate(() => runLogWatch().catch((e) => logger.error('logwatch initial', e)));
       logger.info(
         `Log watch enabled (${logWatch.includeServices.length} service(s), every ${logWatch.intervalSec}s, ${logWatch.lines} lines)`,
+      );
+    }
+
+    const resourceWatch = getResourceWatchSettings(cfg);
+    if (!resourceWatch.enabled) {
+      logger.info('Resource watch disabled');
+    } else {
+      const runResourceWatch = async () => {
+        await runResourceWatchTick({
+          cfg: loadConfig(),
+          cache: resourceWatchCache,
+          alert,
+          logger,
+        });
+      };
+      scheduler.schedule('resource_watch', resourceWatch.intervalSec * 1000, () =>
+        runResourceWatch().catch((e) => logger.error('resource_watch tick', e)),
+      );
+      setImmediate(() => runResourceWatch().catch((e) => logger.error('resource_watch initial', e)));
+      logger.info(
+        `Resource watch enabled (cpu_mode=${resourceWatch.cpuMode}, every ${resourceWatch.intervalSec}s, cooldown ${resourceWatch.cooldownSec}s)`,
       );
     }
 

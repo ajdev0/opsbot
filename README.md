@@ -87,6 +87,18 @@ log_watch:
     - api
     - web
 
+resource_watch:
+  enabled: true
+  interval: 60
+  cpu_mode: delta # delta | loadavg
+  cpu_threshold: 85
+  ram_threshold: 90
+  recover_cpu_below: 75
+  recover_ram_below: 80
+  cooldown_seconds: 600
+  consecutive_breach_ticks: 2
+  consecutive_recover_ticks: 2
+
 services:
   api:
     type: pm2
@@ -126,11 +138,15 @@ services:
 | `opsbot daemon status` | Pid file / process check |
 | `opsbot monitor add` | Add HTTP monitor |
 | `opsbot logwatch set` | Configure service log-watch alerts |
+| `opsbot resourcewatch set` | Configure CPU/RAM threshold alerts |
+| `opsbot resourcewatch status` | Show effective resource-watch settings + current sample |
 | `opsbot service add` | Add runtime service |
 
 ```bash
 opsbot monitor add --name api --url https://example.com --interval 60 --timeout 10
 opsbot logwatch set --enable --interval 3600 --lines 100 --cooldown 3600 --service api --service web --pattern "\\b500\\b" --pattern "status=500" --pattern "\"statusCode\":500"
+opsbot resourcewatch set --enable --interval 60 --cpu-mode delta --cpu 85 --ram 90 --recover-cpu 75 --recover-ram 80 --cooldown 600 --breach-ticks 2 --recover-ticks 2
+opsbot resourcewatch status
 opsbot service add --name api --type pm2 --path /srv/api --pm2-name api
 opsbot service add --name web --type docker --path /srv/web --container web
 opsbot service add --name stack --type docker-compose --path /srv/stack --compose-file docker-compose.yml --compose-service app
@@ -152,6 +168,7 @@ Alerts:
 
 - `⚠️ <name> DOWN` / `✅ <name> RECOVERED` (no spam while staying down)
 - `⚠️ LOG WATCH <service>` when selected service logs match configured 500-patterns
+- `⚠️ RESOURCE WATCH CPU|RAM HIGH` and `✅ RESOURCE WATCH CPU|RAM RECOVERED` on threshold state transitions
 
 Log watch notes:
 
@@ -159,6 +176,12 @@ Log watch notes:
 - Runs on daemon schedule (`log_watch.interval`), default 1 hour when enabled.
 - Dedupe + cooldown suppress repeated alerts for already-seen lines.
 - Scans only `log_watch.include_services` entries (empty list means no scan).
+
+Resource watch notes:
+
+- `cpu_mode: delta` computes CPU from two snapshots between daemon ticks (first tick establishes baseline).
+- `cpu_mode: loadavg` uses 1-minute load average normalized by CPU core count for smoother trend alerts.
+- Uses threshold + recovery hysteresis and consecutive-tick gating to reduce flapping.
 
 ## systemd
 
