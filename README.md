@@ -190,6 +190,8 @@ The **systemd** runtime type calls system `systemctl` and `journalctl` as the **
 - **Service names** must match config keys (`[a-zA-Z0-9_-]+`).
 - Adapters use fixed binaries + argument arrays (`execFile`), not user-built shell strings.
 - **Deploy** runs `/bin/sh -c` **only** for steps listed under `services.<name>.deploy` in your YAML — never from Telegram message text (except **docker-compose** with an empty/missing `deploy`, which runs `docker compose up -d` via the adapter, not arbitrary shell).
+- Dependency hardening: this project uses npm `overrides` to keep `request` transitive packages (`form-data`, `qs`, `tough-cookie`) on patched versions without forcing a downgrade of `node-telegram-bot-api`.
+- If `npm audit` still reports moderate findings tied to the legacy `request` chain, avoid `npm audit fix --force` unless you have validated Telegram runtime behavior after dependency changes.
 
 ## Development
 
